@@ -16,6 +16,7 @@ import ru.stellarburgers.api.data.UserGenerator;
 import java.util.Collections;
 import java.util.List;
 
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -45,7 +46,7 @@ public class OrderCreationTest extends BaseTest {
     public void createOrderWithAuthAndIngredientsSucceeds() {
         Order order = new Order(validIngredients);
         ValidatableResponse response = orderClient.createOrder(order, accessToken);
-        response.statusCode(200).body("success", equalTo(true)).body("order.number", notNullValue());
+        response.statusCode(SC_OK).body("success", equalTo(true)).body("order.number", notNullValue());
     }
 
     @Test
@@ -54,9 +55,7 @@ public class OrderCreationTest extends BaseTest {
     public void createOrderWithoutAuthFails() {
         Order order = new Order(validIngredients);
         ValidatableResponse response = orderClient.createOrder(order, null);
-
-
-        response.statusCode(401)
+        response.statusCode(SC_UNAUTHORIZED)
                 .body("success", equalTo(false))
                 .body("message", equalTo("You should be authorised"));
     }
@@ -67,7 +66,7 @@ public class OrderCreationTest extends BaseTest {
     public void createOrderWithoutIngredientsFails() {
         Order order = new Order(Collections.emptyList());
         ValidatableResponse response = orderClient.createOrder(order, accessToken);
-        response.statusCode(400).body("success", equalTo(false))
+        response.statusCode(SC_BAD_REQUEST).body("success", equalTo(false))
                 .body("message", equalTo("Ingredient ids must be provided"));
     }
 
@@ -77,6 +76,6 @@ public class OrderCreationTest extends BaseTest {
     public void createOrderWithInvalidHashFails() {
         Order order = new Order(List.of("invalid_hash_made_of_fail"));
         ValidatableResponse response = orderClient.createOrder(order, accessToken);
-        response.statusCode(500);
+        response.statusCode(SC_INTERNAL_SERVER_ERROR);
     }
 }

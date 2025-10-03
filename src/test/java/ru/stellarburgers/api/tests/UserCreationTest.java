@@ -10,8 +10,10 @@ import ru.stellarburgers.api.BaseTest;
 import ru.stellarburgers.api.client.UserClient;
 import ru.stellarburgers.api.data.User;
 import ru.stellarburgers.api.data.UserGenerator;
-import static org.hamcrest.Matchers.equalTo;
 
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.hamcrest.Matchers.equalTo;
 
 public class UserCreationTest extends BaseTest {
 
@@ -34,7 +36,7 @@ public class UserCreationTest extends BaseTest {
     public void createUserSuccessfully() {
         User user = UserGenerator.createRandomUser();
         ValidatableResponse response = userClient.createUser(user);
-        response.statusCode(200).body("success", equalTo(true));
+        response.statusCode(SC_OK).body("success", equalTo(true));
         accessToken = response.extract().path("accessToken");
     }
 
@@ -46,10 +48,9 @@ public class UserCreationTest extends BaseTest {
         accessToken = userClient.createUser(user).extract().path("accessToken");
 
         ValidatableResponse response = userClient.createUser(user);
-        response.statusCode(403).body("success", equalTo(false))
+        response.statusCode(SC_FORBIDDEN).body("success", equalTo(false))
                 .body("message", equalTo("User already exists"));
     }
-
 
     @Test
     @DisplayName("Создание пользователя без поля 'email'")
@@ -57,7 +58,7 @@ public class UserCreationTest extends BaseTest {
     public void createUserWithoutEmailFails() {
         User user = UserGenerator.createUserWithoutEmail();
         ValidatableResponse response = userClient.createUser(user);
-        response.statusCode(403).body("success", equalTo(false))
+        response.statusCode(SC_FORBIDDEN).body("success", equalTo(false))
                 .body("message", equalTo("Email, password and name are required fields"));
     }
 
@@ -67,7 +68,7 @@ public class UserCreationTest extends BaseTest {
     public void createUserWithoutPasswordFails() {
         User user = UserGenerator.createUserWithoutPassword();
         ValidatableResponse response = userClient.createUser(user);
-        response.statusCode(403).body("success", equalTo(false))
+        response.statusCode(SC_FORBIDDEN).body("success", equalTo(false))
                 .body("message", equalTo("Email, password and name are required fields"));
     }
 
@@ -77,7 +78,7 @@ public class UserCreationTest extends BaseTest {
     public void createUserWithoutNameFails() {
         User user = UserGenerator.createUserWithoutName();
         ValidatableResponse response = userClient.createUser(user);
-        response.statusCode(403).body("success", equalTo(false))
+        response.statusCode(SC_FORBIDDEN).body("success", equalTo(false))
                 .body("message", equalTo("Email, password and name are required fields"));
     }
 }
